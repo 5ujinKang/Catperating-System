@@ -1,0 +1,76 @@
+Dig in the question from (https://github.com/Waterjin6/ostep-homework/tree/master/cpu-sched-mlfq) 
+
+"whether jobs that just complete an I/O are moved to 
+  { the head of the queue they are in (or) to the back }, 
+  with the -I flag. Check it out, it's fun! "
+
+Answer : It moves to the back of the queue
+
+instruction : ./mlfq.py -j 2 -n 1 -l 0,20,2:0,20,0 -c -i 10
+means : 2 jobs, 1 queue, 
+  - job 0 : start at 0, run for 20 ms, send I/O request for every 2ms
+  - job 1 : start at 0, run for 20 ms, don't send I/O request
+  - it takes 10 ms for I/O
+
+
+-------------------result---------------------------
+Here is the list of inputs:
+OPTIONS jobs 2
+OPTIONS queues 1
+OPTIONS allotments for queue  0 is   1
+OPTIONS quantum length for queue  0 is  10
+OPTIONS boost 0
+OPTIONS ioTime 10
+OPTIONS stayAfterIO False
+OPTIONS iobump False
+
+
+For each job, three defining characteristics are given:
+  startTime : at what time does the job enter the system
+  runTime   : the total CPU time needed by the job to finish
+  ioFreq    : every ioFreq time units, the job issues an I/O
+              (the I/O takes ioTime units to complete)
+
+Job List:
+  Job  0: startTime   0 - runTime  20 - ioFreq   2
+  Job  1: startTime   0 - runTime  20 - ioFreq   0
+
+
+Execution Trace:
+
+[ time 0 ] JOB BEGINS by JOB 0
+[ time 0 ] JOB BEGINS by JOB 1
+[ time 0 ] Run JOB 0 at PRIORITY 0 [ TICKS 9 ALLOT 1 TIME 19 (of 20) ]
+[ time 1 ] Run JOB 0 at PRIORITY 0 [ TICKS 8 ALLOT 1 TIME 18 (of 20) ]
+[ time 2 ] IO_START by JOB 0
+IO DONE
+[ time 2 ] Run JOB 1 at PRIORITY 0 [ TICKS 9 ALLOT 1 TIME 19 (of 20) ]
+[ time 3 ] Run JOB 1 at PRIORITY 0 [ TICKS 8 ALLOT 1 TIME 18 (of 20) ]
+[ time 4 ] Run JOB 1 at PRIORITY 0 [ TICKS 7 ALLOT 1 TIME 17 (of 20) ]
+[ time 5 ] Run JOB 1 at PRIORITY 0 [ TICKS 6 ALLOT 1 TIME 16 (of 20) ]
+[ time 6 ] Run JOB 1 at PRIORITY 0 [ TICKS 5 ALLOT 1 TIME 15 (of 20) ]
+[ time 7 ] Run JOB 1 at PRIORITY 0 [ TICKS 4 ALLOT 1 TIME 14 (of 20) ]
+[ time 8 ] Run JOB 1 at PRIORITY 0 [ TICKS 3 ALLOT 1 TIME 13 (of 20) ]
+[ time 9 ] Run JOB 1 at PRIORITY 0 [ TICKS 2 ALLOT 1 TIME 12 (of 20) ]
+[ time 10 ] Run JOB 1 at PRIORITY 0 [ TICKS 1 ALLOT 1 TIME 11 (of 20) ]
+[ time 11 ] Run JOB 1 at PRIORITY 0 [ TICKS 0 ALLOT 1 TIME 10 (of 20) ]
+[ time 12 ] IO_DONE by JOB 0 <================ at here, I/O done. also JOB 1's ALLOT ends. 
+  if 
+  jobs that just complete an I/O are moved to the head of the queue, JOB 0 should start after this.
+  But JOB 1 is resuming.
+[ time 12 ] Run JOB 1 at PRIORITY 0 [ TICKS 9 ALLOT 1 TIME 9 (of 20) ]
+[ time 13 ] Run JOB 1 at PRIORITY 0 [ TICKS 8 ALLOT 1 TIME 8 (of 20) ]
+[ time 14 ] Run JOB 1 at PRIORITY 0 [ TICKS 7 ALLOT 1 TIME 7 (of 20) ]
+[ time 15 ] Run JOB 1 at PRIORITY 0 [ TICKS 6 ALLOT 1 TIME 6 (of 20) ]
+[ time 16 ] Run JOB 1 at PRIORITY 0 [ TICKS 5 ALLOT 1 TIME 5 (of 20) ]
+[ time 17 ] Run JOB 1 at PRIORITY 0 [ TICKS 4 ALLOT 1 TIME 4 (of 20) ]
+[ time 18 ] Run JOB 1 at PRIORITY 0 [ TICKS 3 ALLOT 1 TIME 3 (of 20) ]
+[ time 19 ] Run JOB 1 at PRIORITY 0 [ TICKS 2 ALLOT 1 TIME 2 (of 20) ]
+[ time 20 ] Run JOB 1 at PRIORITY 0 [ TICKS 1 ALLOT 1 TIME 1 (of 20) ]
+[ time 21 ] Run JOB 1 at PRIORITY 0 [ TICKS 0 ALLOT 1 TIME 0 (of 20) ]
+[ time 22 ] FINISHED JOB 1
+[ time 22 ] Run JOB 0 at PRIORITY 0 [ TICKS 7 ALLOT 1 TIME 17 (of 20) ]
+[ time 23 ] Run JOB 0 at PRIORITY 0 [ TICKS 6 ALLOT 1 TIME 16 (of 20) ]
+[ time 24 ] IO_START by JOB 0
+IO DONE
+  
