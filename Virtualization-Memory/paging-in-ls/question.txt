@@ -1,0 +1,78 @@
+Q5. 
+Use a program like valgrind to instrument a real application 
+and generate a virtual page reference stream. 
+
+For example, running valgrind --tool=lackey --trace-mem=yes ls
+will output a nearly-complete reference trace of every instruction and data reference 
+made by the program ls. 
+
+======================================================================================
+=> 1. valgrind --tool=lackey --trace-mem=yes ls 2> trace.txt
+
+- lackey is a lightweight memory reference tracer, 
+  it logs every memory read, write, and instruction fetch made by the program.
+
+- trace-mem=yes
+  This option tells lackey to output every memory access (instruction fetches, loads, stores).
+  Without --trace-mem=yes, lackey wouldn’t produce this detailed trace.
+  So this flag enables the logging of every memory reference, 
+  which is essential for building the memory reference trace you want to analyze.
+
+- 2> : save memory reference trace only
+   1> is question.txt  trace.txt as stdout
+
+- trace.txt is file looks like
+   I  0023C790,2  # instruction read at 0x0023C790 of size 2
+   I  0023C792,5
+    S BE80199C,4  # data store at 0xBE80199C of size 4
+   I  0025242B,3
+    L BE801950,4  # data load at 0xBE801950 of size 4
+   I  0023D476,7
+    M 0025747C,1  # data modify at 0x0025747C of size 1
+
+    The hex value is the virtual memory address accessed
+
+From : https://github.com/mozilla-b2g/valgrind/blob/master/lackey/lk_main.c
+ Every instruction executed has an "instr" event representing it.
+ Instructions that do memory accesses are followed by one or more "load",
+ "store" or "modify" events.  Some instructions do more than one load or
+ store, as in the last two examples in the above trace.
+
+ Here are some examples of x86 instructions that do different combinations
+ of loads, stores, and modifies.
+
+    Instruction          Memory accesses                  Event sequence
+    -----------          ---------------                  --------------
+    add %eax, %ebx       No loads or stores               instr
+
+    movl (%eax), %ebx    loads (%eax)                     instr, load
+
+    movl %eax, (%ebx)    stores (%ebx)                    instr, store
+
+    incl (%ecx)          modifies (%ecx)                  instr, modify
+
+    cmpsb                loads (%esi), loads(%edi)        instr, load, load
+
+    call*l (%edx)        loads (%edx), stores -4(%esp)    instr, load, store
+    pushl (%edx)         loads (%edx), stores -4(%esp)    instr, load, store
+    movsw                loads (%esi), stores (%edi)      instr, load, store
+=======================================================================================
+
+2. To make this memory reference trace : trace.txt useful for the simulator above, 
+you’ll have to first transform each virtual memory reference into a virtual page-number reference 
+(done by masking off the offset and shifting the resulting bits downward).
+=> vpn_converter.py trace.txt vpn_trance.txt
+=> result : vpn_trace.txt
+
+===============================================================================================
+3. How big of a cache is needed for your application trace 
+in order to satisfy a large fraction of requests? 
+
+./paging-policy.py --addressfile=vpn_trace.txt --policy=OPT --cachesize=? -c
+    result : 
+    100 FINALSTATS hits 778216   misses 288   hitrate 99.96
+    150 FINALSTATS hits 778230   misses 274   hitrate 99.96
+    200 FINALSTATS hits 778230   misses 274   hitrate 99.96
+    400 FINALSTATS hits 778230   misses 274   hitrate 99.96
+
+at least, when policy == optimal replacement, needed cache size is around 100~150
