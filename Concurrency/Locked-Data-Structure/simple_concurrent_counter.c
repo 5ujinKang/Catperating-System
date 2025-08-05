@@ -21,7 +21,7 @@
 */
 
 
-/* RESULTS :
+/* RESULTS : N threads => Nx times <similar>
 
 
     Threads: 1, Total increments: 1000000, Final counter value: 1000000
