@@ -1,0 +1,32 @@
+Use the call gettimeofday() to measure time within your program. 
+
+How accurate is this timer? : Can be not very accurate since it's a wallclock
+https://blog.habets.se/2010/09/gettimeofday-should-never-be-used-to-measure-time.html 
+
+gettimeofday() and time() should only be used to get the current time 
+if the current wall-clock time is actually what you want. 
+They should never be used to measure time or schedule an event X time into the future.
+
+
+What is the smallest interval it can measure? : microsecond
+
+
+
+You can also look into other timers, 
+such as the cycle counter available on x86 via the rdtsc instruction.
+
+
+| Timer Type                       | Measures               | Affected by system clock? | Precision       |
+| -------------------------------- | ---------------------- | ------------------------- | --------------- |
+| `gettimeofday()`                 | Wall clock (real time) | Yes                       | Microseconds    |
+| `clock_gettime(CLOCK_MONOTONIC)` | Monotonic elapsed time | No                        | Nanoseconds     |
+| `rdtsc`                          | CPU cycles             | No                        | CPU cycle ticks |
+
+*when run rdtsc better add CPU affinity
+
+The monotonic clock is implemented inside the OS kernel, 
+often using hardware timers or counters that count steady, 
+uninterrupted ticks since boot time.
+
+Because it counts elapsed ticks (not absolute time), 
+it never goes backward or jumps — it only increases steadily.
