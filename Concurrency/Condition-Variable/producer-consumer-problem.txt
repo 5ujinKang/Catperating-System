@@ -1,0 +1,80 @@
+Default option : 
+- threads are run in order, equally.
+
+=================================================
+
+
+main-two-cvs-while : https://github.com/remzi-arpacidusseau/ostep-homework/blob/master/threads-cv/main-two-cvs-while.c
+
+Q2.
+    Run with one producer and one consumer, -p 1 -c 1
+    and have the producer produce a few values. -l 5
+
+    Start with a buffer (size 1), and then increase it. 
+    How does the behavior of the code change with larger buffers? (or does it?)
+    : if we have larger buffer, maximum entries will increase.
+    but the elapse time won't be increase. 
+        - since there are only 1 consumer
+        - produceer and consumer share CPU time fairly. => 1 : 1 
+
+    What would you predict num full to be with different buffer sizes (e.g.,-m 10) 
+    => num_full is unlikely larger than 1. => extra buffer entries no needed.
+
+
+    and different numbers of produced items (e.g.,-l 100), 
+    => only time increase, since it means we produce & consume more.
+
+    when you change the consumer sleep string from default (no sleep) to -C 0,0,0,0,0,0,1?
+    => consumer goes to extra 1 sleep after unlock => letting a producer grab CPU time longer
+    Generally, time will increased since anyway we do extra sleep.
+
+    even, larger buffer performance would not be much better than single one. 
+    if producer produce more values during consumer sleeping, it eventually should wait for consumer to consume.
+
+
+Q4.
+    How long do you think the following execution, 
+    with one producer, three consumers, 
+    a single-entry shared buffer, 
+    and each consumer pausing at point c3 for a second, will take? 
+    
+    ./main-two-cvs-while -p 1 -c 3 -m 1 -C 0,0,0,1,0,0,0:0,0,0,1,0,0,0:0,0,0,1,0,0,0 -l 10 -v -t
+
+    compare to the same number of consumer -c 3, adding this -C schedule(including 1) will 
+    : take more time (since sleep added)
+    => no sleep faster than including sleep
+
+    c3 is where right after consumer checked buffer is empty and before going to sleep
+
+    if there are only 1 consumer, unlikely get into c3 section
+        but still possible to get into because of provider (consider the case when consumer run first)
+    if we have 3 thread, they might get into c3 frequently, since it's likely another threads holing that.
+    => 1 consumer faster than n consumer
+
+
+Q5. change the size of the shared buffer to 3(-m 3). Will this make any difference in the total time?
+    when there is 1 consumer : not gonna change at all. we don't need that many amount of buffer
+    when there is 3 consumers : no big change. there are three consumers waiting for provider. 
+        likely, as soon as provider provide, consumer will consume => only use 1 entry in buffer
+
+
+Q6. Now change the location of the sleep to c6 
+   (this models a consumer taking something off the queue and then doing something with it), 
+   again using a single-entry buffer. What time do you predict in this case? 
+   
+   ./main-two-cvs-while -p 1 -c 3 -m 1 -C 0,0,0,0,0,0,1:0,0,0,0,0,0,1:0,0,0,0,0,0,1 -l 10 -v -t
+   c6 : Mutex_unlock(&m);
+   => time reduce in a half. because it releasing the lock so that other thread can use.
+
+
+Q7. Finally, change the buffer size to 3 again (-m 3). What time do you predict now?
+    => same... eitherway each fill / consume needs lock
+    if producer produce more values during consumer sleeping, it eventually should wait for consumer to consume.
+
+
+========================================================
+main-one-cv-while.c
+
+Q8. Can you configure a sleep string, assuming a single producer, one consumer, 
+    and a buffer of size 1, to cause a problem with this code?
+     ./main-one-cv-while -p 1 -c 1 -m 1 -C 0,0,0,1,0,0,0 -l 10 -v -t
