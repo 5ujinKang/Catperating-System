@@ -4,7 +4,7 @@
  * Build this to serve exactly one request at a time
  * have each request be very simple, e.g., to get the current time of day
  * */
-// simple_time_server.c
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -52,4 +52,5 @@ int main() {
     close(listen_fd);
     return 0;
 }
+
 
