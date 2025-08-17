@@ -20,7 +20,7 @@
 #include <netinet/in.h>
 
 #define PORT 12345
-#define BUF_SIZE 1024
+#define BUF_SIZE 99999
 
 int main() {
     int listen_fd = socket(AF_INET, SOCK_STREAM, 0);
