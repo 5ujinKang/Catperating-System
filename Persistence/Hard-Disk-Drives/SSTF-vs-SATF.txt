@@ -1,0 +1,35 @@
+Q4. FIFO is not always best, e.g., with the request stream -a 7,30,8, what order should the requests be processed in? 
+Run the shortest seek-time first (SSTF) scheduler (-p SSTF) on this workload; 
+how long should it take (seek, rotation, transfer) for each request to be served?
+
+- Assumption : 7-8-30 or 8-7-30 in SSTF order (30 is in inner track)
+
+- Result : seems correct
+REQUESTS ['7', '30', '8']
+
+Block:   7  Seek:  0  Rotate: 15  Transfer: 30  Total:  45
+Block:   8  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+Block:  30  Seek: 80  Rotate:190  Transfer: 30  Total: 300
+
+TOTALS      Seek: 80  Rotate:205  Transfer: 90  Total: 375
+
+=========================================================================================
+
+
+Q5. Now use the shortest access-time first (SATF) scheduler (-p SATF). 
+Does it make any difference for -a 7,30,8 workload? 
+Find a set of requests where SATF outperforms SSTF; more generally, when is SATF better than SSTF?
+
+- Assumption : 8-7-30
+
+- Results : seems wrong. 7-8-30
+REQUESTS ['7', '30', '8']
+
+Block:   7  Seek:  0  Rotate: 15  Transfer: 30  Total:  45
+Block:   8  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+Block:  30  Seek: 80  Rotate:190  Transfer: 30  Total: 300
+
+TOTALS      Seek: 80  Rotate:205  Transfer: 90  Total: 375
+
+
+Why??

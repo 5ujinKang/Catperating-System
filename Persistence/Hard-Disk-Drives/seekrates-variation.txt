@@ -1,0 +1,142 @@
+Q1. Compute the seek, rotation, and transfer times for the following sets of 
+requests: -a 0, -a 6, -a 30, {-a 7,30,8},{-a 10,11,12,13}.
+
+environment : 
+OPTIONS seed 0
+OPTIONS addr 10,11,12,13
+OPTIONS addrDesc 5,-1,0
+OPTIONS seekSpeed 1
+OPTIONS rotateSpeed 1
+OPTIONS skew 0
+OPTIONS window -1
+OPTIONS policy FIFO
+OPTIONS compute False
+OPTIONS graphics True
+OPTIONS zoning 30,30,30
+OPTIONS lateAddr -1
+OPTIONS lateAddrDesc 0,-1,0
+
+Results: 
+
+REQUESTS ['0']
+
+Block:   0  Seek:  0  Rotate:165  Transfer: 30  Total: 195
+
+TOTALS      Seek:  0  Rotate:165  Transfer: 30  Total: 195
+
+REQUESTS ['6']
+
+Block:   6  Seek:  0  Rotate:345  Transfer: 30  Total: 375
+
+TOTALS      Seek:  0  Rotate:345  Transfer: 30  Total: 375
+
+REQUESTS ['30']
+
+Block:  30  Seek: 80  Rotate:265  Transfer: 30  Total: 375
+
+TOTALS      Seek: 80  Rotate:265  Transfer: 30  Total: 375
+
+
+REQUESTS ['7', '30', '8']
+
+Block:   7  Seek:  0  Rotate: 15  Transfer: 30  Total:  45
+Block:  30  Seek: 80  Rotate:220  Transfer: 30  Total: 330
+Block:   8  Seek: 80  Rotate:310  Transfer: 30  Total: 420
+
+TOTALS      Seek:160  Rotate:545  Transfer: 90  Total: 795
+
+
+REQUESTS ['10', '11', '12', '13']
+
+Block:  10  Seek:  0  Rotate:105  Transfer: 30  Total: 135
+Block:  11  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+Block:  12  Seek: 40  Rotate:320  Transfer: 30  Total: 390
+Block:  13  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+
+TOTALS      Seek: 40  Rotate:425  Transfer:120  Total: 585
+
+
+=========================================================================
+
+Q2. do the same requests above, but change the seek rate to different values: 
+-S 2, -S 4, -S 8, -S 10, -S 40, -S 0.1. How do the times change?
+
+- Assumption : 
+-- if the workload which doesn't need to seek (move to other track) : No Change
+-- else : the higher the seek rate the less the seek time
+
+Results : seems true
+
+1) for the workload which doesn't need to seek : 
+./disk.py -S 0.1 -a 0,6,10 -G
+./disk.py -S 10 -a 0,6,10 -G
+results are same 
+
+REQUESTS ['0', '6', '10']
+
+Block:   0  Seek:  0  Rotate:165  Transfer: 30  Total: 195
+Block:   6  Seek:  0  Rotate:150  Transfer: 30  Total: 180
+Block:  10  Seek:  0  Rotate: 90  Transfer: 30  Total: 120
+
+TOTALS      Seek:  0  Rotate:405  Transfer: 90  Total: 495
+
+
+2) for the workload which needs to seek : the higher the seek reate the less the seek time
+
+
+When -S 2 : 
+REQUESTS ['10', '11', '12', '13']
+
+Block:  10  Seek:  0  Rotate:105  Transfer: 30  Total: 135
+Block:  11  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+Block:  12  Seek: 20  Rotate:340  Transfer: 30  Total: 390
+Block:  13  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+
+TOTALS      Seek: 20  Rotate:445  Transfer:120  Total: 585
+
+
+When -S 4:
+
+REQUESTS ['10', '11', '12', '13']
+
+Block:  10  Seek:  0  Rotate:105  Transfer: 30  Total: 135
+Block:  11  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+Block:  12  Seek: 10  Rotate:350  Transfer: 30  Total: 390
+Block:  13  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+
+TOTALS      Seek: 10  Rotate:455  Transfer:120  Total: 585
+
+
+when -S 8 :
+REQUESTS ['10', '11', '12', '13']
+
+Block:  10  Seek:  0  Rotate:105  Transfer: 30  Total: 135
+Block:  11  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+Block:  12  Seek:  5  Rotate:355  Transfer: 30  Total: 390
+Block:  13  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+
+TOTALS      Seek:  5  Rotate:460  Transfer:120  Total: 585
+
+
+When -S 10 : 
+REQUESTS ['10', '11', '12', '13']
+
+Block:  10  Seek:  0  Rotate:105  Transfer: 30  Total: 135
+Block:  11  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+Block:  12  Seek:  4  Rotate:356  Transfer: 30  Total: 390
+Block:  13  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+
+TOTALS      Seek:  4  Rotate:461  Transfer:120  Total: 585
+
+
+When -S 0.1 :
+REQUESTS ['10', '11', '12', '13']
+
+Block:  10  Seek:  0  Rotate:105  Transfer: 30  Total: 135
+Block:  11  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+Block:  12  Seek:401  Rotate:319  Transfer: 30  Total: 750
+Block:  13  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+
+TOTALS      Seek:401  Rotate:424  Transfer:120  Total: 945
+
+

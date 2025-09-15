@@ -1,0 +1,44 @@
+Q3. Do the same requests above, but change the rotation rate
+: -R 0.1, -R 0.5,-R 0.01. How do the times change?
+
+Assumption : 
+With workloads which needs rotation (but most of them needs a rotation),
+the higher the rotation rates, the faster the time taken for rotation.
+!! Wait, maybe NOT. 
+	if a workloads need seek operations, it can depends on the distance at that time when finish the seek operation.
+	However, overall, I guess rotation time would be shorten because, if there is a distance variation, fast rotation rates will assure faster arrival at the wanted location.
+
+-> the higher the rotation rate -> the less rotation time
+
+Results: Assumption seems correct
+
+when rotation rate 1 :
+REQUESTS ['7', '30', '8']
+
+Block:   7  Seek:  0  Rotate: 15  Transfer: 30  Total:  45
+Block:  30  Seek: 80  Rotate:220  Transfer: 30  Total: 330
+Block:   8  Seek: 80  Rotate:310  Transfer: 30  Total: 420
+
+TOTALS      Seek:160  Rotate:545  Transfer: 90  Total: 795
+
+
+When rotation rate 0.1:
+REQUESTS ['7', '30', '8']
+
+Block:   7  Seek:  0  Rotate:150  Transfer:299  Total: 449
+Block:  30  Seek: 80  Rotate:2920  Transfer:301  Total:3301
+Block:   8  Seek: 80  Rotate:219  Transfer:300  Total: 599
+
+TOTALS      Seek:160  Rotate:3289  Transfer:900  Total:4349
+
+
+When rotation rate 0.5 :  
+REQUESTS ['7', '30', '8']
+
+Block:   7  Seek:  0  Rotate: 30  Transfer: 60  Total:  90
+Block:  30  Seek: 80  Rotate:520  Transfer: 60  Total: 660
+Block:   8  Seek: 80  Rotate:700  Transfer: 60  Total: 840
+
+TOTALS      Seek:160  Rotate:1250  Transfer:180  Total:1590
+
+
