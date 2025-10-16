@@ -1,3 +1,5 @@
-personal homeworks for https://pages.cs.wisc.edu/~remzi/OSTEP/
+# 🐱Perating System
 
-Might not accurate. Just for studying.
+Personal Notes and Exercises for (Operating Systems : Three easy pieces)[https://pages.cs.wisc.edu/~remzi/OSTEP/]
+
+Might not be accurate, just for studying.
