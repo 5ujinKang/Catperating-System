@@ -1,1 +1,1 @@
-![Front](./Notes/Virtualization/front.png)
+![Front](front.png)
